@@ -2,42 +2,184 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>☕ 꿀잠 카페인 계산기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ 숙면을 위한 카페인 적정 섭취 시간 계산</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .calc-btn { background: #3498db; color: white; border: none; cursor: pointer; }
-        #survey-box { margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px; display: none; }
-        .submit-btn { background: #2ecc71; color: white; border: none; cursor: pointer; margin-top: 20px; }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 { text-align: center; color: #2c3e50; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        .calc-btn {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .calc-btn:hover { background-color: #2980b9; }
+        
+        #result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f6f3;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        /* 설문조사 영역 스타일 */
+        #survey-box {
+            margin-top: 30px;
+            display: none;
+            border-top: 2px dashed #ddd;
+            padding-top: 20px;
+        }
+        #survey-box h3 { text-align: center; color: #2c3e50; font-size: 18px; margin-bottom: 5px; }
+        #survey-box p { text-align: center; font-size: 12px; color: #777; margin-top: 0; }
+        .survey-submit-btn {
+            background-color: #2ecc71;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .survey-submit-btn:hover { background-color: #27ae60; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>☕ 목표 취침 시간을 위한 카페인 섭취 시간 계산</h2>
-    <label>목표 취침 시간</label><input type="time" id="sleepTime">
-    <label>음료 선택</label>
+    <h2>☕ 숙면을 위한 카페인 적정 섭취 시간 계산</h2>
+    
+    <label for="sleepTime">목표 취침 시간</label>
+    <input type="time" id="sleepTime" required>
+
+    <label for="caffeineAmt">어떤 음료를 드시나요?</label>
     <select id="caffeineAmt">
-        <option value="150">아메리카노(150mg)</option>
-        <option value="100">에너지드링크(100mg)</option>
+        <option value="150">아메리카노 (약 150mg)</option>
+        <option value="100">에너지 드링크 (약 100mg)</option>
+        <option value="75">에스프레소 1샷 (약 75mg)</option>
+        <option value="30">믹스커피 (약 30mg)</option>
     </select>
-    <button class="calc-btn" onclick="calculate()">계산하기</button>
-    <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+
+    <label for="sensitivity">카페인 민감도 (반감기)</label>
+    <select id="sensitivity">
+        <option value="6">민감함 (반감기 6시간)</option>
+        <option value="5" selected>보통 (반감기 5시간)</option>
+        <option value="4">둔감함 (반감기 4시간)</option>
+    </select>
+
+    <button class="calc-btn" onclick="calculateCaffeine()">계산하기</button>
+
+    <div id="result-box"></div>
 
     <div id="survey-box">
-        <h3>📝 만족도 조사</h3>
+        <h3>📝 1분 만족도 설문조사</h3>
+        <p>더 나은 데이터 분석을 위해 의견을 들려주세요!</p>
+        
         <form action="https://formspree.io/f/xojogeaz" method="POST">
-            <label>1. 이해하기 쉬웠나요?</label>
-            <select name="이해도"><option value="5">5점</option><option value="1">1점</option></select>
-            <button type="submit" class="submit-btn">제출하기</button>
+            
+            <label>1. 계산기의 결과는 이해하기 쉬웠나요?</label>
+            <select name="이해하기_쉬운정도" required>
+                <option value="">선택해주세요</option>
+                <option value="5">5점 - 아주 직관적이고 쉬웠다</option>
+                <option value="4">4점 - 대체로 이해하기 쉬웠다</option>
+                <option value="3">3점 - 보통이다</option>
+                <option value="2">2점 - 조금 헷갈렸다</option>
+                <option value="1">1점 - 복잡하고 어려웠다</option>
+            </select>
+
+            <label>2. 오늘 계산된 시간이 컨디션 관리에 도움이 될까요?</label>
+            <select name="유용성" required>
+                <option value="">선택해주세요</option>
+                <option value="5">5점 - 큰 도움이 될 것 같다</option>
+                <option value="4">4점 - 어느 정도 도움이 될 것 같다</option>
+                <option value="3">3점 - 보통이다</option>
+                <option value="2">2점 - 별로 도움이 안 될 것 같다</option>
+                <option value="1">1점 - 전혀 도움이 안 될 것 같다</option>
+            </select>
+
+            <label>3. 결과를 본 후, 본인의 카페인 습관에 대해 어떤 생각이 드셨나요?</label>
+            <select name="행동변화_인식" required>
+                <option value="">선택해주세요</option>
+                <option value="일찍 끊어야겠다">생각보다 카페인을 훨씬 일찍 끊어야 함을 깨달았다.</option>
+                <option value="수면부족원인 발견">늦게 잤던 이유가 카페인 때문일 수 있겠다고 느꼈다.</option>
+                <option value="이미 적절함">나는 이미 알맞게 카페인을 섭취하고 있었다.</option>
+                <option value="변화없음">앞으로도 마시던 대로 마실 것 같다.</option>
+            </select>
+
+            <input type="hidden" name="입력한_취침시간" id="hidden_sleepTime">
+            <input type="hidden" name="선택한_카페인양" id="hidden_caffeineAmt">
+
+            <button type="submit" class="survey-submit-btn">제출하고 결과 분석 돕기</button>
         </form>
     </div>
 </div>
+
 <script>
-    function calculate() {
-        document.getElementById('result').innerText = "늦어도 오후 3시 전에는 드세요!";
+    function calculateCaffeine() {
+        const sleepTimeInput = document.getElementById('sleepTime').value;
+        const caffeineAmt = parseFloat(document.getElementById('caffeineAmt').value);
+        const halfLife = parseFloat(document.getElementById('sensitivity').value);
+        const targetAmt = 50;
+
+        if (!sleepTimeInput) {
+            alert("목표 취침 시간을 입력해주세요!");
+            return;
+        }
+
+        let hoursNeeded = 0;
+        if (caffeineAmt > targetAmt) {
+            hoursNeeded = halfLife * (Math.log(targetAmt / caffeineAmt) / Math.log(0.5));
+        }
+
+        const [hours, minutes] = sleepTimeInput.split(':').map(Number);
+        let sleepDate = new Date();
+        sleepDate.setHours(hours, minutes, 0, 0);
+
+        let cutoffDate = new Date(sleepDate.getTime() - (hoursNeeded * 60 * 60 * 1000));
+
+        const outHours = cutoffDate.getHours().toString().padStart(2, '0');
+        const outMins = cutoffDate.getMinutes().toString().padStart(2, '0');
+
+        const resultBox = document.getElementById('result-box');
+        resultBox.innerHTML = `숙면을 취하시려면 늦어도<br><span style="color:#e74c3c; font-size: 22px;">오늘 ${outHours}시 ${outMins}분</span><br>전에는 다 드셔야 합니다!`;
+        resultBox.style.display = 'block';
+
+        // 계산 결과를 설문지 숨김 필드(Hidden input)에 복사해서 넣음
+        document.getElementById('hidden_sleepTime').value = sleepTimeInput;
+        document.getElementById('hidden_caffeineAmt').value = caffeineAmt + "mg";
+
+        // 설문조사 박스 표시
         document.getElementById('survey-box').style.display = 'block';
     }
 </script>
+
 </body>
 </html>
